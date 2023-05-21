@@ -31,12 +31,6 @@ class trem_bala:
         self.x = x
         self.y = ALTURA_TELA - self.altura - 10
         self.velocidade = 1
-        #self.numero = numero
-        #self.geracao = geracao
-        #self.inputs = []
-        #self.pesos = []
-        #self.bias = 0
-        #self.output = 0
 
     def desenhar(self,tela):
         tela.blit(self.img, (self.x, self.y))
