@@ -25,6 +25,7 @@ def desenhar_tela(tela):
 
     # blit -  "bit block transfer" (transferência de blocos de bits)
     # cópia de uma região de pixels de uma imagem para outra
+    # (0,0) -> onde "começa"
     tela.blit(FUNDO_IMG, (0,0))
     tela.blit(TREM_BALA_IMG, (LARGURA_TELA - COMPRIMENTO_TREM, ALTURA_TELA - ALTURA_TREM - 10))
 
@@ -33,12 +34,15 @@ def desenhar_tela(tela):
 
 def main():
 
+    # define a tela do jogo com as dimensões passadas
     tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
 
     while True:
 
+        # verifica se cliquei no X para fechar o jogo
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                # encerra todo o código
                 sys.exit()
 
         desenhar_tela(tela)
