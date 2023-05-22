@@ -165,10 +165,15 @@ def rodar_jogo(tela, trens, geracao):
             print(f'geração originária: {melhor_trem.geracao}')
             print(f'número do trem: {melhor_trem.numero}')
             print(f'pesos do trem: {melhor_trem.pesos}')
+            print(f'tempo decorrido: {melhor_trem.tempo_decorrido}')
             print('------------------------------------------------------------')
 
             # mudar de geracao
             geracao += 1
+
+            # limitando o número de gerações que serão criadas
+            if geracao > MAX_GERACOES:
+                sys.exit()
 
             # o número do melhor trem será 1, porque ele será o primeiro da próxima geração
             melhor_trem.numero = 1
