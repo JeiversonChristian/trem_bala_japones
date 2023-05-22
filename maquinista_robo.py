@@ -89,6 +89,9 @@ def desenhar_tela(tela, trens):
 
 def rodar_jogo(tela, trens):
 
+    num_trem = 0
+    mudou_trem = True
+
     while True:
 
         # verifica se cliquei no X para fechar o jogo
@@ -97,35 +100,46 @@ def rodar_jogo(tela, trens):
                 # encerra todo o código
                 sys.exit()
 
-        for i in range(len(trens)):
+        if mudou_trem:
+            # cada trem tem o seu próprio tempo
+            tempo_inicial = time.time()
+            mudou_trem = False
 
+        permitido_andar_frente = 1
+        trens[num_trem].calcular_output()
+        if True:
+        #if trens[num_trem].output > 0:
 
-            # Keys é um vetor que guardara o estado de todas as teclas permitidas de serem analisadas
-            # esse estado será 1 ou 0, para está sendo pressionada ou não está sendo pressionada
-            keys = pygame.key.get_pressed()
-            
-            # variável controle para permitir o trem andar pra frente
-            permitido_andar_frente = 1
+            # caso ao avançar pra frente, o trem passe a tela, então ele já está no limite da tela.
+            if trens[num_trem].x + trens[num_trem].comprimento + trens[num_trem].velocidade > LARGURA_TELA:
+                # então ele não pode avançar mais
+                permitido_andar_frente = 0
 
-            # caso o estado da tecla "d" seja 1, então ela está sendo pressionada, logo, podemos avançar
-            if keys[pygame.K_d]:
+            # se for permitido avançar, seja feliz     
+            if permitido_andar_frente == 1:
+                trens[num_trem].andar_frente()
 
-                # caso ao avançar pra frente, o trem passe a tela, então ele já está no limite da tela.
-                if trens[i].x + trens[i].comprimento + trens[i].velocidade > LARGURA_TELA:
-                    # então ele não pode avançar mais
-                    permitido_andar_frente = 0
+        tempo_atual = time.time()
+        tempo_decorrido = tempo_atual - tempo_inicial
+        tempo_restante = TENPO_LIMITE - tempo_decorrido
 
-                # se for permitido avançar, seja feliz     
-                if permitido_andar_frente == 1:
-                    trens[i].andar_frente()
+        trens[num_trem].inputs[0] = tempo_restante
 
-        # toda vez desenhamos a tela, porque pode ter mudado algo
+        distancia_fim = LARGURA_TELA - trens[num_trem].x + trens[num_trem].comprimento
+        trens[num_trem].inputs[1] = distancia_fim
+
+         # se acabar o tempo ou o trem chegar ao final, muda o trem
+        if tempo_restante < 0 or trens[num_trem].x + trens[num_trem].comprimento == LARGURA_TELA:
+            num_trem += 1
+            mudou_trem = True
+
+        # quero que atualize a tela para cada trem, um de cada vez
         desenhar_tela(tela, trens)
 
-def inicializar_jogo():
+        if num_trem >= len(trens):
+                sys.exit()
 
-    # tempo inicial do jogo
-    tempo_inicial = time.time()
+def inicializar_jogo():
 
     # define a tela do jogo com as dimensões passadas
     tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
@@ -133,10 +147,8 @@ def inicializar_jogo():
     # vetor que receberá todos os trens
     trens = []
 
-    # o tempo atual e o restante precisou serem craidos fora da iteração, pois eles devem ser os mesmos
-    # para cada trem
-    tempo_atual = time.time()
-    tempo_restante = TENPO_LIMITE - tempo_atual
+    # na inicialização dos trens, considero que todos tem o tempo limite para completar a tarefa
+    tempo_restante = TENPO_LIMITE - 0
 
     # a distância inicial é a mesma para todos os trens
     distancia_inicial = LARGURA_TELA - COMPRIMENTO_TREM
