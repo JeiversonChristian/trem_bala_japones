@@ -19,7 +19,7 @@ TREM_BALA_IMG = pygame.image.load('imgs/trem bala.png')
 COMPRIMENTO_TREM = TREM_BALA_IMG.get_width()
 ALTURA_TREM = TREM_BALA_IMG.get_height()
 
-QUANTIDADE_TRENS = 2
+QUANTIDADE_TRENS = 5
 
 TENPO_LIMITE = 5
 
@@ -30,6 +30,8 @@ TAXA_MUTACAO_PESOS = 10
 BIAS_MINIMO = -15
 BIAS_MAXIMO = 15
 TAXA_MUTACAO_BIAS = 5
+
+MAX_GERACOES = 5
 #---------------------------------------------------------------------------------------------------------
 
 #---------------------------------------------------------------------------------------------------------
@@ -51,6 +53,7 @@ class trem_bala:
         self.pesos = []
         self.bias = 0
         self.output = 0
+        self.tempo_decorrido = 0
 
     def desenhar(self,tela):
         tela.blit(self.img, (self.x, self.y))
@@ -87,10 +90,19 @@ def desenhar_tela(tela, trens):
     # atualiza a tela
     pygame.display.update()
 
-def rodar_jogo(tela, trens):
+def rodar_jogo(tela, trens, geracao):
 
+    # vairavel para varrer todos os trens
     num_trem = 0
+
+    # variável de controle para verificar quando muda de trem
     mudou_trem = True
+
+    # variável que guadará o melhor trem de cada geração
+    melhor_trem = trens[0]
+
+    # o número da geração será atualizado depois, mas precisa ser definido aqui
+    geracao = geracao
 
     while True:
 
@@ -107,8 +119,7 @@ def rodar_jogo(tela, trens):
 
         permitido_andar_frente = 1
         trens[num_trem].calcular_output()
-        if True:
-        #if trens[num_trem].output > 0:
+        if trens[num_trem].output > 0:
 
             # caso ao avançar pra frente, o trem passe a tela, então ele já está no limite da tela.
             if trens[num_trem].x + trens[num_trem].comprimento + trens[num_trem].velocidade > LARGURA_TELA:
@@ -130,6 +141,17 @@ def rodar_jogo(tela, trens):
 
          # se acabar o tempo ou o trem chegar ao final, muda o trem
         if tempo_restante < 0 or trens[num_trem].x + trens[num_trem].comprimento == LARGURA_TELA:
+
+            trens[num_trem].tempo_decorrido = tempo_decorrido
+            
+            # guardar o melhor trem
+
+            distancia_trem_atual = LARGURA_TELA - trens[num_trem].x + trens[num_trem].comprimento
+            distancia_melhor_trem = LARGURA_TELA - melhor_trem.x + melhor_trem.comprimento
+
+            if distancia_trem_atual <= distancia_melhor_trem and trens[num_trem].tempo_decorrido <= melhor_trem.tempo_decorrido:
+                melhor_trem = trens[num_trem]
+
             num_trem += 1
             mudou_trem = True
 
@@ -137,7 +159,79 @@ def rodar_jogo(tela, trens):
         desenhar_tela(tela, trens)
 
         if num_trem >= len(trens):
-                sys.exit()
+
+            print('------------------------------------------------------------')
+            print(f'melhor trem da geração {geracao}')
+            print(f'geração originária: {melhor_trem.geracao}')
+            print(f'número do trem: {melhor_trem.numero}')
+            print(f'pesos do trem: {melhor_trem.pesos}')
+            print('------------------------------------------------------------')
+
+            # mudar de geracao
+            geracao += 1
+
+            # o número do melhor trem será 1, porque ele será o primeiro da próxima geração
+            melhor_trem.numero = 1
+
+            reinicializar_jogo(tela, geracao, melhor_trem)
+
+def reinicializar_jogo(tela, geracao, melhor_trem):
+
+    # vetor que receberá todos os trens
+    trens = []
+
+    # na inicialização dos trens, considero que todos tem o tempo limite para completar a tarefa
+    tempo_restante = TENPO_LIMITE - 0
+
+    # a distância inicial é a mesma para todos os trens
+    distancia_inicial = LARGURA_TELA - COMPRIMENTO_TREM
+
+    # os trens agora são da geração nova
+    geracao = geracao
+
+    # criando os trens da nova geração
+    
+    # o melhor trem da geração passada será o primeiro da nova geração
+    trens.append(melhor_trem)
+
+    for i in range(QUANTIDADE_TRENS -1):
+
+        # inicializa um vetor para receber os inputs a serem alocados nos trens
+        inputs = [0,0]
+
+        # inicializa um vetor vazio para receber os pesos a serem alocados nos trens
+        pesos = []
+
+        # todos começam no ponto inicial x = 0
+        # o número do trem vai ser i+1 = {2,3,...}, pois o 1 já é o melhor da geração passada
+        trem = trem_bala(0,i+2,geracao)
+
+        inputs[0] = tempo_restante
+        inputs[1] = distancia_inicial
+        trem.inputs = inputs
+
+        # os pesos dos novos trens serão baseados nos pesos do melhor trem da geração passada
+        # mas eles podem "mutar"
+        for j in range(len(melhor_trem.pesos)):
+            if random.randint(1,100) <= TAXA_MUTACAO_PESOS:
+                peso = random.randint(PESO_MINIMO, PESO_MAXIMO)
+                pesos.append(peso)
+            else:
+                peso = melhor_trem.pesos[j]
+                pesos.append(peso)
+        trem.pesos = pesos
+
+        # gerando o bias de cada trem baseado no bias do melhor trem
+        # mas ele também pode "mutar"
+        if random.randint(1,100) <= TAXA_MUTACAO_BIAS:
+            bias = random.randint(BIAS_MINIMO, BIAS_MAXIMO)
+        else:
+            bias = melhor_trem.bias
+        trem.bias = bias
+
+        trens.append(trem)
+
+    rodar_jogo(tela, trens, geracao)
 
 def inicializar_jogo():
 
@@ -153,10 +247,13 @@ def inicializar_jogo():
     # a distância inicial é a mesma para todos os trens
     distancia_inicial = LARGURA_TELA - COMPRIMENTO_TREM
 
-     # criando os trens da primeira geração
+    # os trens inciais são da geração 1
+    geracao = 1
+
+    # criando os trens da primeira geração
     for i in range(QUANTIDADE_TRENS):
 
-        # inicializa um vetor vazio para receber os inputs a serem alocados nos trens
+        # inicializa um vetor para receber os inputs a serem alocados nos trens
         inputs = [0,0]
 
         # inicializa um vetor vazio para receber os pesos a serem alocados nos trens
@@ -164,8 +261,7 @@ def inicializar_jogo():
 
         # todos começam no ponto inicial x = 0
         # o número do trem vai ser i+1 = {1,2,...}
-        # os trens inciais são da geração 1
-        trem = trem_bala(0,i+1,1)
+        trem = trem_bala(0,i+1,geracao)
 
         inputs[0] = tempo_restante
         inputs[1] = distancia_inicial
@@ -176,7 +272,6 @@ def inicializar_jogo():
         for j in range(len(inputs)):
             peso = random.randint(PESO_MINIMO, PESO_MAXIMO)
             pesos.append(peso)
-
         trem.pesos = pesos
 
         # gerando o bias inicial de cada trem
@@ -185,7 +280,7 @@ def inicializar_jogo():
 
         trens.append(trem)
 
-    rodar_jogo(tela, trens)
+    rodar_jogo(tela, trens, geracao)
 
         
 
