@@ -26,6 +26,10 @@ TENPO_LIMITE = 5
 PESO_MINIMO = -30
 PESO_MAXIMO = 30
 TAXA_MUTACAO_PESOS = 10
+
+BIAS_MINIMO = -15
+BIAS_MAXIMO = 15
+TAXA_MUTACAO_BIAS = 5
 #---------------------------------------------------------------------------------------------------------
 
 #---------------------------------------------------------------------------------------------------------
@@ -54,6 +58,17 @@ class trem_bala:
     def  andar_frente(self):
         # andar pra frente é incrementar a posição inicial em que o trem é desenhado na tela
         self.x += self.velocidade
+
+    def calcular_output(self):
+        # zero o output para poder calcular um novo
+        self.output = 0
+
+        # produto vetorial dos inputs com os outputs
+        for i in range(len(self.inputs)):
+            self.output += self.inputs[i] * self.pesos[i]
+        # adiciona o bias só no final, após o produto vetorial estar completo    
+        self.output += self.bias
+        #lembrando que será uma "reta multidimensional" ax + b (a: pesos, x: inputs, b: bias)
 #---------------------------------------------------------------------------------------------------------
 
 #---------------------------------------------------------------------------------------------------------
@@ -151,6 +166,10 @@ def inicializar_jogo():
             pesos.append(peso)
 
         trem.pesos = pesos
+
+        # gerando o bias inicial de cada trem
+        bias = random.randint(BIAS_MINIMO, BIAS_MAXIMO)
+        trem.bias = bias
 
         trens.append(trem)
 
