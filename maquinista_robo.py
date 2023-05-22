@@ -165,6 +165,7 @@ def rodar_jogo(tela, trens, geracao):
             print(f'geração originária: {melhor_trem.geracao}')
             print(f'número do trem: {melhor_trem.numero}')
             print(f'pesos do trem: {melhor_trem.pesos}')
+            print(f'Bias do trem: {melhor_trem.bias}')
             print(f'tempo decorrido: {melhor_trem.tempo_decorrido}')
             print('------------------------------------------------------------')
 
