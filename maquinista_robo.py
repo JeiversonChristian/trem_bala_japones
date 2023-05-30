@@ -32,6 +32,9 @@ BIAS_MAXIMO = 15
 TAXA_MUTACAO_BIAS = 5
 
 MAX_GERACOES = 5
+
+pygame.font.init()
+FONT = pygame.font.SysFont('arial', 25)
 #---------------------------------------------------------------------------------------------------------
 
 #---------------------------------------------------------------------------------------------------------
@@ -77,12 +80,14 @@ class trem_bala:
 #---------------------------------------------------------------------------------------------------------
 # funções
 
-def desenhar_tela(tela, trens):
+def desenhar_tela(tela, trens, texto_tempo):
 
     # blit -  "bit block transfer" (transferência de blocos de bits)
     # cópia de uma região de pixels de uma imagem para outra
     # (0,0) -> onde "começa"
     tela.blit(FUNDO_IMG, (0,0))
+
+    tela.blit(texto_tempo, (LARGURA_TELA - texto_tempo.get_width() - 10, 10) )
 
     for i in range(len(trens)):
         trens[i].desenhar(tela)
@@ -112,7 +117,7 @@ def rodar_jogo(tela, trens, geracao):
                 # encerra todo o código
                 sys.exit()
 
-        if mudou_trem:
+        if mudou_trem == True:
             # cada trem tem o seu próprio tempo
             tempo_inicial = time.time()
             mudou_trem = False
@@ -132,6 +137,7 @@ def rodar_jogo(tela, trens, geracao):
 
         tempo_atual = time.time()
         tempo_decorrido = tempo_atual - tempo_inicial
+        texto_tempo = FONT.render(f"{tempo_decorrido:.3f}s", 1, (0,0,0))
         tempo_restante = TENPO_LIMITE - tempo_decorrido
 
         trens[num_trem].inputs[0] = tempo_restante
@@ -156,7 +162,7 @@ def rodar_jogo(tela, trens, geracao):
             mudou_trem = True
 
         # quero que atualize a tela para cada trem, um de cada vez
-        desenhar_tela(tela, trens)
+        desenhar_tela(tela, trens, texto_tempo)
 
         if num_trem >= len(trens):
 
@@ -198,6 +204,8 @@ def reinicializar_jogo(tela, geracao, melhor_trem):
     # criando os trens da nova geração
     
     # o melhor trem da geração passada será o primeiro da nova geração
+    melhor_trem.inputs[0] = tempo_restante
+    melhor_trem.inputs[1] = distancia_inicial
     trens.append(melhor_trem)
 
     for i in range(QUANTIDADE_TRENS -1):
