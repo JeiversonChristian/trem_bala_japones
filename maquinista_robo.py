@@ -60,6 +60,8 @@ class trem_bala:
 
     def desenhar(self,tela):
         tela.blit(self.img, (self.x, self.y))
+        texto_tempo_trem = FONT.render(f"{self.tempo_decorrido:.3f}s", 1, (0,0,0))
+        tela.blit(texto_tempo_trem, (self.x + COMPRIMENTO_TREM - texto_tempo_trem.get_width(), self.y -  texto_tempo_trem.get_height()) )
 
     def  andar_frente(self):
         # andar pra frente é incrementar a posição inicial em que o trem é desenhado na tela
@@ -145,10 +147,12 @@ def rodar_jogo(tela, trens, geracao):
         distancia_fim = LARGURA_TELA - trens[num_trem].x + trens[num_trem].comprimento
         trens[num_trem].inputs[1] = distancia_fim
 
+        trens[num_trem].tempo_decorrido = tempo_decorrido
+
          # se acabar o tempo ou o trem chegar ao final, muda o trem
         if tempo_restante < 0 or trens[num_trem].x + trens[num_trem].comprimento == LARGURA_TELA:
-
-            trens[num_trem].tempo_decorrido = tempo_decorrido
+            
+            #trens[num_trem].tempo_decorrido = tempo_decorrido
             
             # guardar o melhor trem
 
@@ -168,7 +172,7 @@ def rodar_jogo(tela, trens, geracao):
 
             print('------------------------------------------------------------')
             print(f'melhor trem da geração {geracao}')
-            print(f'geração originária: {melhor_trem.geracao}')
+            #print(f'geração originária: {melhor_trem.geracao}')
             print(f'número do trem: {melhor_trem.numero}')
             print(f'pesos do trem: {melhor_trem.pesos}')
             print(f'Bias do trem: {melhor_trem.bias}')
@@ -206,6 +210,7 @@ def reinicializar_jogo(tela, geracao, melhor_trem):
     # o melhor trem da geração passada será o primeiro da nova geração
     melhor_trem.inputs[0] = tempo_restante
     melhor_trem.inputs[1] = distancia_inicial
+    melhor_trem.x = 0
     trens.append(melhor_trem)
 
     for i in range(QUANTIDADE_TRENS -1):
