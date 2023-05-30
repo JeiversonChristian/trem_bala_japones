@@ -82,7 +82,7 @@ class trem_bala:
 #---------------------------------------------------------------------------------------------------------
 # funções
 
-def desenhar_tela(tela, trens, texto_tempo):
+def desenhar_tela(tela, trens, texto_tempo, texto_geracao):
 
     # blit -  "bit block transfer" (transferência de blocos de bits)
     # cópia de uma região de pixels de uma imagem para outra
@@ -90,6 +90,7 @@ def desenhar_tela(tela, trens, texto_tempo):
     tela.blit(FUNDO_IMG, (0,0))
 
     tela.blit(texto_tempo, (LARGURA_TELA - texto_tempo.get_width() - 10, 10) )
+    tela.blit(texto_geracao, (10, 10) )
 
     for i in range(len(trens)):
         trens[i].desenhar(tela)
@@ -112,6 +113,8 @@ def rodar_jogo(tela, trens, geracao):
     geracao = geracao
 
     while True:
+
+        texto_geracao = FONT.render(f"Geração: {geracao}", 1, (0,0,0))
 
         # verifica se cliquei no X para fechar o jogo
         for event in pygame.event.get():
@@ -166,7 +169,7 @@ def rodar_jogo(tela, trens, geracao):
             mudou_trem = True
 
         # quero que atualize a tela para cada trem, um de cada vez
-        desenhar_tela(tela, trens, texto_tempo)
+        desenhar_tela(tela, trens, texto_tempo, texto_geracao)
 
         if num_trem >= len(trens):
 
