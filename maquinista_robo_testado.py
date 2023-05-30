@@ -148,7 +148,7 @@ def inicializar_jogo():
     inputs = [0,0]
 
     # pesos iguais aos do melhor trem 
-    pesos = [-15, 12]
+    pesos = [-4, 12]
 
     # começa no ponto inicial x = 0
     trem = trem_bala(0)
@@ -160,7 +160,7 @@ def inicializar_jogo():
     trem.pesos = pesos
 
     # bias do melhor trem
-    bias = 14
+    bias = -14
 
     trem.bias = bias
 
